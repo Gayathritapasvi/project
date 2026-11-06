@@ -1,0 +1,57 @@
+# FastSpeech 2 TTS - English & Telugu
+# ---------------------------------------------------------------
+# Target environments: Google Colab (Python 3.10-3.13, PyTorch 2.x
+# incl. the 2.11 era) and local Linux/macOS CPU installs.
+#
+# Google Colab: DO NOT reinstall torch/torchaudio - the runtime ships
+# CUDA-enabled builds and reinstalling them from PyPI breaks GPU support.
+# Everything else installs cleanly with:  pip install -r requirements.txt
+#
+# After installing, verify the environment:
+#     python tools/check_env.py
+# (runs pip check, CUDA checks, import tests and prints a
+#  compatibility matrix - expected output is documented in
+#  VALIDATION.md).
+#
+# Alignment note: the forced-alignment engine uses the maintained
+# `ctc-segmentation` package. `torchaudio.functional.forced_align` is
+# deprecated (torchaudio >= 2.8) and removed in newer releases, so
+# torchaudio is NO LONGER required by this project (it is not listed
+# below). Do not fix alignment issues by downgrading PyTorch.
+# ---------------------------------------------------------------
+
+# --- deep learning (provided by Colab; install locally if needed) ---
+torch>=2.1
+# torchaudio is intentionally NOT required (see note above)
+
+# --- Hugging Face stack (datasets + ASR models for alignment) ---
+transformers>=4.36,<6
+datasets>=2.14
+huggingface_hub>=0.16
+ctc-segmentation>=0.7.5
+
+# --- audio / signal processing ---
+numpy>=1.23,<3
+scipy>=1.10
+librosa>=0.10
+soundfile>=0.12
+pyworld>=0.3.2          # F0 (dio + stonemask)
+
+# --- text front-ends ---
+g2p-en==2.1.0           # English OOV G2P fallback
+inflect>=5.0            # English number normalisation
+unidecode>=1.3
+
+# --- training / analysis ---
+scikit-learn>=1.2
+matplotlib>=3.6
+PyYAML>=6.0
+tqdm>=4.60
+
+# --- report + tests ---
+fpdf2>=2.5              # Report/Technical_Report.pdf renderer
+pytest>=7.0
+
+# --- build constraint ---
+# pyworld imports pkg_resources, removed from setuptools>=81
+setuptools<81

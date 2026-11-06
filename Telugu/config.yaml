@@ -1,0 +1,96 @@
+# FastSpeech 2 - Telugu (IndicTTS Telugu) configuration.
+# Paths are resolved relative to the project root (the parent of this folder).
+
+dataset: "IndicTTS_Telugu"
+language: "te"
+
+path:
+  corpus_path: "data/Telugu/corpus"
+  raw_path: "data/Telugu/raw"
+  preprocessed_path: "data/Telugu/preprocessed"
+  alignment_path: "data/Telugu/alignments"
+  lexicon_path: null            # Telugu uses the rule-based G2P (fs2_core/text/telugu.py)
+
+data_source:
+  hf_dataset: "SPRINGLab/IndicTTS_Telugu"
+  hf_split: "train"
+  train_hours: 5.0
+  val_hours: 1.0
+  min_dur: 1.0
+  max_dur: 15.0
+  seed: 42
+
+preprocessing:
+  val_size: 200
+  text:
+    text_cleaners: ["telugu_cleaners"]
+  audio:
+    sampling_rate: 22050
+    max_wav_value: 32768.0
+  stft:
+    filter_length: 1024
+    hop_length: 256
+    win_length: 1024
+  mel:
+    n_mel_channels: 80
+    mel_fmin: 0
+    mel_fmax: 8000
+  pitch:
+    feature: "phoneme_level"
+    normalization: True
+  energy:
+    feature: "phoneme_level"
+    normalization: True
+  alignment:
+    method: "ctc"
+    asr_model: "anuragshas/wav2vec2-large-xlsr-53-telugu"  # public, verified; official ai4bharat/indicwav2vec_v1_telugu is gated/repo-incomplete
+    min_sil_frames: 2
+
+model:
+  transformer:
+    encoder_layer: 4
+    encoder_head: 2
+    encoder_hidden: 256
+    decoder_layer: 6
+    decoder_head: 2
+    decoder_hidden: 256
+    conv_filter_size: 1024
+    conv_kernel_size: [9, 1]
+    encoder_dropout: 0.2
+    decoder_dropout: 0.2
+  variance_predictor:
+    filter_size: 256
+    kernel_size: 3
+    dropout: 0.5
+  variance_embedding:
+    pitch_quantization: "linear"
+    energy_quantization: "linear"
+    n_bins: 256
+  multi_speaker: True          # IndicTTS Telugu: speaker = gender (male/female voices)
+  max_seq_len: 1000
+  vocoder:
+    model: "HiFi-GAN"
+    speaker: "universal"
+
+train_path:
+  ckpt_path: "Telugu/checkpoints"
+  log_path: "Telugu/logs"
+  result_path: "Results/Telugu"
+
+optimizer:
+  batch_size: 32
+  betas: [0.9, 0.98]
+  eps: 0.000000001
+  weight_decay: 0.0
+  grad_clip_thresh: 1.0
+  grad_acc_step: 1
+  warm_up_step: 4000
+  anneal_steps: [120000, 160000, 190000]
+  anneal_rate: 0.3
+
+step:
+  total_step: 200000
+  log_step: 100
+  synth_step: 1000
+  val_step: 1000
+  save_step: 20000

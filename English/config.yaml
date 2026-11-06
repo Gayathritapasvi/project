@@ -1,0 +1,102 @@
+# FastSpeech 2 - English (Svarah) configuration.
+# Paths are resolved relative to the project root (the parent of this folder).
+
+dataset: "Svarah"
+language: "en"
+
+path:
+  corpus_path: "data/English/corpus"          # written by data_prep/download_svarah.py
+  raw_path: "data/English/raw"                # 22.05 kHz int16 wav + .lab transcripts
+  preprocessed_path: "data/English/preprocessed"
+  alignment_path: "data/English/alignments"   # phone durations from CTC alignment
+  lexicon_path: "fs2_core/lexicon/librispeech-lexicon.txt"
+
+data_source:
+  hf_dataset: "ai4bharat/Svarah"
+  hf_split: "test"
+  train_hours: 5.0
+  val_hours: 1.0
+  min_dur: 1.0        # seconds
+  max_dur: 15.0       # seconds
+  seed: 42
+  # Optional: official Svarah meta_speaker_stats.csv for true speaker IDs.
+  # Without it the downloader documents a single-voice fallback
+  # (multi_speaker: false) instead of inventing speaker identities.
+  speaker_stats_path: null
+
+preprocessing:
+  val_size: 200            # only used if manifest.csv has no split column
+  text:
+    text_cleaners: ["english_cleaners"]
+  audio:
+    sampling_rate: 22050
+    max_wav_value: 32768.0
+  stft:
+    filter_length: 1024
+    hop_length: 256
+    win_length: 1024
+  mel:
+    n_mel_channels: 80
+    mel_fmin: 0
+    mel_fmax: 8000
+  pitch:
+    feature: "phoneme_level"
+    normalization: True
+  energy:
+    feature: "phoneme_level"
+    normalization: True
+  alignment:
+    method: "ctc"        # "ctc" (wav2vec2 + ctc-segmentation) or "mock" (smoke tests only)
+    asr_model: "facebook/wav2vec2-large-960h-lv60-self"
+    min_sil_frames: 2
+
+model:
+  transformer:
+    encoder_layer: 4
+    encoder_head: 2
+    encoder_hidden: 256
+    decoder_layer: 6
+    decoder_head: 2
+    decoder_hidden: 256
+    conv_filter_size: 1024
+    conv_kernel_size: [9, 1]
+    encoder_dropout: 0.2
+    decoder_dropout: 0.2
+  variance_predictor:
+    filter_size: 256
+    kernel_size: 3
+    dropout: 0.5
+  variance_embedding:
+    pitch_quantization: "linear"
+    energy_quantization: "linear"
+    n_bins: 256
+  multi_speaker: True        # speakers.json defines the table (gender field
+                             # -> spk_female / spk_male; see download_svarah
+                             # and tools/migrate_en_gender_speakers.py)
+  max_seq_len: 1000
+  vocoder:
+    model: "HiFi-GAN"
+    speaker: "universal"
+
+train_path:
+  ckpt_path: "English/checkpoints"
+  log_path: "English/logs"
+  result_path: "Results/English"
+
+optimizer:
+  batch_size: 32
+  betas: [0.9, 0.98]
+  eps: 0.000000001
+  weight_decay: 0.0
+  grad_clip_thresh: 1.0
+  grad_acc_step: 1
+  warm_up_step: 4000
+  anneal_steps: [120000, 160000, 190000]
+  anneal_rate: 0.3
+
+step:
+  total_step: 200000
+  log_step: 100
+  synth_step: 1000
+  val_step: 1000
+  save_step: 20000
