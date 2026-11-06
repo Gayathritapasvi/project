@@ -41,3 +41,4 @@ NOTES:
 Due to GitHub file size limits, the trained model checkpoints are hosted externally:
 
 - **English Model Checkpoints:** [Download English Checkpoints]( https://drive.google.com/drive/folders/1eLOUMcjLmtHHHVF7zhP3Bi-pwSxVdkD9?usp=sharing )
+- **Telugu Model Checkpoints: https://drive.google.com/drive/folders/153MFJWEev8cbEtSamvFL5nXOMF5vugko?usp=sharing
